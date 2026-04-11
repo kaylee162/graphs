@@ -1,6 +1,7 @@
 import apply.Building;
 import apply.Intersection;
 import apply.StaticWaddleWorks;
+import refactor.AdjacencyListGraph;
 import refactor.Edge;
 import refactor.MutableGraph;
 import refactor.Vertex;
@@ -44,8 +45,7 @@ public class Main {
      */
     public static <T> MutableGraph<T> getMutableGraphInstance(Set<Vertex<T>> vertices,
                                                               Set<Edge<T>> edges) {
-        // Replace the line below
-        throw new UnsupportedOperationException("Instantiate your class here!");
+        return new AdjacencyListGraph<>(vertices, edges);
     }
 
     /**
@@ -58,7 +58,7 @@ public class Main {
      */
     public static StaticWaddleWorks getWaddleWorksInstance(MutableGraph<Intersection> roads,
                                                            MutableGraph<Building> grid) {
-        // Replace the line below
-        throw new UnsupportedOperationException("Instantiate your class here!");
+        // Part 3 method. Leave this as a stub until you implement WaddleWorks.
+        throw new UnsupportedOperationException("Instantiate your WaddleWorks class here in Part 3.");
     }
 }

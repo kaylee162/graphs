@@ -14,18 +14,47 @@ import java.util.Set;
  * <p>
  * See the PDF for more information on Disjoint Sets.
  * <p>
- * @version 2.0
- * @author CS 1332 TAs
+ * @author Kaylee Henry
+ * @version 1.0
+ * @userid khenry61
+ * @GTID 904065531
+ * <br>
+ * <p>
+ * Collaborators: None
+ * <p>
+ * Resources: None
+ * <p>
+ * <br>
+ * By typing 'I agree' below, you are agreeing that this is your
+ * own work and that you are responsible for the contents of all
+ * submitted files. If this is left blank, this project will lose
+ * points.
+ *<p>
+ *<br>
+ * Agree Here: I agree  
  */
 public class DisjointSet<T> {
 
+    /**
+     * Maps each data item to its node in the union-find forest.
+     */
     private final Map<T, DisjointSetNode<T>> disjointSet;
 
     /**
-     * Initializes the disjoint sets by instantiating a HashMap
+     * Tracks the current representative/root data values for every disjoint set.
+     *
+     * <p>This backing set is what allows getRoots() to run in O(1), since the
+     * method can simply return an unmodifiable view of this already-maintained
+     * set instead of recomputing the roots each time.
+     */
+    private final Set<T> roots;
+
+    /**
+     * Initializes the disjoint sets by instantiating a HashMap.
      */
     public DisjointSet() {
         disjointSet = new HashMap<>();
+        roots = new HashSet<>();
     }
 
     /**
@@ -38,9 +67,14 @@ public class DisjointSet<T> {
      * the roots set is properly updated.
      */
     public T find(T data) {
+        // If this data has never appeared before, create a brand-new singleton set.
+        // A brand-new node is its own parent, so it is also the root of its own set.
         if (!disjointSet.containsKey(data)) {
             disjointSet.put(data, new DisjointSetNode<>(data));
+            roots.add(data);
         }
+
+        // Find the root node and return the root's data.
         return find(disjointSet.get(data)).getData();
     }
 
@@ -71,6 +105,11 @@ public class DisjointSet<T> {
      * @param second The second data to find the parent of
      */
     public void union(T first, T second) {
+        // Ensure both elements exist in the structure.
+        // The provided PDF explains that find adds an element if it is not already present.
+        find(first);
+        find(second);
+
         union(disjointSet.get(first), disjointSet.get(second));
     }
 
@@ -86,16 +125,23 @@ public class DisjointSet<T> {
      * the roots set is properly updated.
      */
     private void union(DisjointSetNode<T> first, DisjointSetNode<T> second) {
-        // Finds parents
+        // Find the current roots of each node's set.
         DisjointSetNode<T> firstParent = find(first);
         DisjointSetNode<T> secondParent = find(second);
 
-        // If parents are different (different sets)
+        // If they already share the same root, they are already in the same set,
+        // so there is nothing to merge and the roots set should not change.
         if (firstParent != secondParent) {
             if (firstParent.getRank() < secondParent.getRank()) {
+                // firstParent loses root status and becomes a child of secondParent.
                 firstParent.setParent(secondParent);
+                roots.remove(firstParent.getData());
             } else {
+                // secondParent loses root status and becomes a child of firstParent.
                 secondParent.setParent(firstParent);
+                roots.remove(secondParent.getData());
+
+                // If the ranks were equal, the chosen root's rank increases by 1.
                 if (firstParent.getRank() == secondParent.getRank()) {
                     firstParent.setRank(firstParent.getRank() + 1);
                 }
@@ -112,7 +158,6 @@ public class DisjointSet<T> {
      * <p> The returned set must not allow modifications to the underlying graph.
      */
     public Set<T> getRoots() {
-        // Remove this line when you implement the method
-        throw new UnsupportedOperationException("Unimplemented");
+        return Collections.unmodifiableSet(roots);
     }
 }
