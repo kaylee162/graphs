@@ -7,10 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Class to store a DisjointSet data structure. This data structure has two
- * main functions: find and union. find will look for the root (parent) of a
- * DisjointSet. Calling find on two different T data will check if those two are
- * part of the same set. union will join two sets together if not already.
  * <p>
  * See the PDF for more information on Disjoint Sets.
  * <p>
@@ -32,6 +28,13 @@ import java.util.Set;
  *<p>
  *<br>
  * Agree Here: I agree  
+ * 
+ * ------------------------------------------------
+ * 
+ * Class to store a DisjointSet data structure. This data structure has two
+ * main functions: find and union. find will look for the root (parent) of a
+ * DisjointSet. Calling find on two different T data will check if those two are
+ * part of the same set. union will join two sets together if not already.
  */
 public class DisjointSet<T> {
 
@@ -43,7 +46,7 @@ public class DisjointSet<T> {
     /**
      * Tracks the current representative/root data values for every disjoint set.
      *
-     * <p>This backing set is what allows getRoots() to run in O(1), since the
+     * This backing set is what allows getRoots() to run in O(1), since the
      * method can simply return an unmodifiable view of this already-maintained
      * set instead of recomputing the roots each time.
      */
@@ -58,13 +61,11 @@ public class DisjointSet<T> {
     }
 
     /**
-     * Finds the root node of the disjoint set containing {@code data}.
+     * Finds the root node of the disjoint set containing data.
      * Puts the data in the disjoint sets if it does not already exist.
      *
      * @param data the data to search for
      * @return the disjoint set's root data
-     * @implNote think about how you can modify this method to ensure
-     * the roots set is properly updated.
      */
     public T find(T data) {
         // If this data has never appeared before, create a brand-new singleton set.
@@ -106,7 +107,6 @@ public class DisjointSet<T> {
      */
     public void union(T first, T second) {
         // Ensure both elements exist in the structure.
-        // The provided PDF explains that find adds an element if it is not already present.
         find(first);
         find(second);
 
@@ -121,8 +121,6 @@ public class DisjointSet<T> {
      *
      * @param first The first DisjointSetNode to find the parent of
      * @param second The second DisjointSetNode to find the parent of
-     * @implNote think about how you can modify this method to ensure
-     * the roots set is properly updated.
      */
     private void union(DisjointSetNode<T> first, DisjointSetNode<T> second) {
         // Find the current roots of each node's set.
@@ -153,9 +151,7 @@ public class DisjointSet<T> {
      * Gets the set of all representative vertices (roots) in the disjoint set.
      *
      * @return the set of all roots in the disjoint set.
-     * @implSpec
-     * <p> {@code O(1)} runtime
-     * <p> The returned set must not allow modifications to the underlying graph.
+     * @implSpec {@code O(1)} runtime
      */
     public Set<T> getRoots() {
         return Collections.unmodifiableSet(roots);

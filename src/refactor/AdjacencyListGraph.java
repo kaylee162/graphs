@@ -26,21 +26,18 @@ import java.util.Set;
  *<p>
  *<br>
  * Agree Here: I agree  
- */
-
-/**
+ * 
+ * ------------------------------------------------
+ * 
  * Concrete mutable graph implementation backed by an adjacency list.
  *
- * <p>This graph is:
- * <ul>
- *     <li>Simple: no self-loops, and at most one edge between a pair of vertices</li>
- *     <li>Weighted: each edge stores an integer weight</li>
- *     <li>Undirected: every edge appears in both endpoint neighbor lists</li>
- * </ul>
+ * This graph is:
+ *     Simple: meaning it has no self-loops, and at most one edge between a pair of vertices
+ *     Weighted: menaing that each edge stores an integer weight
+ *     Undirected: meaning that every edge appears in both endpoint neighbor lists
  *
- * <p>The inherited {@code vertices} and {@code edges} sets come from
- * {@link MutableGraph}. This class adds the adjacency-list representation
- * required by the project.
+ * The inherited vertices and edges sets come from
+ * MutableGraph. And this class adds the adjacency-list representation
  *
  * @param <T> the data type stored inside each vertex
  */
@@ -49,10 +46,10 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Adjacency-list representation of the graph.
      *
-     * <p>Each vertex maps to a list of neighboring vertices paired with the
+     * Each vertex maps to a list of neighboring vertices paired with the
      * weight of the edge connecting them.
      *
-     * <p>Every vertex in the graph must appear as a key in this map, even if
+     * Every vertex in the graph must appear as a key in this map, even if
      * it has no edges and therefore has an empty neighbor list.
      */
     private final Map<Vertex<T>, List<VertexDistance<T>>> adjList;
@@ -60,16 +57,14 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Constructs a new mutable graph from the given vertex and edge sets.
      *
-     * <p>This constructor validates that:
-     * <ul>
-     *     <li>the sets themselves are not null</li>
-     *     <li>no vertex in the vertex set is null</li>
-     *     <li>no edge in the edge set is null</li>
-     *     <li>every edge endpoint exists in the vertex set</li>
-     *     <li>no self-loop edges exist</li>
-     * </ul>
-     *
-     * <p>After validation, the constructor builds the adjacency list so that
+     * This constructor validates that:
+     *     the sets themselves are not null
+     *     no vertex in the vertex set is null
+     *     no edge in the edge set is null
+     *     every edge endpoint exists in the vertex set
+     *     no self-loop edges exist
+     *      
+     * After validation, the constructor builds the adjacency list so that
      * every vertex is present as a key and every undirected edge is inserted
      * into both endpoint neighbor lists.
      *
@@ -106,12 +101,8 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Returns the adjacency list of the graph.
      *
-     * <p>This is an O(1) operation because we simply return an unmodifiable
+     * This is an O(1) operation because we simply return an unmodifiable
      * view of the backing map.
-     *
-     * <p>Note: this protects the map structure itself from replacement or
-     * removal by outside code. The graph still internally manages the actual
-     * neighbor lists.
      *
      * @return an unmodifiable view of the adjacency list
      */
@@ -123,7 +114,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Returns the neighbors of a given vertex.
      *
-     * <p>This is an O(1) lookup in the adjacency map.
+     * This is an O(1) lookup in the adjacency map.
      *
      * @param vertex the vertex whose neighbors should be returned
      * @return an unmodifiable view of that vertex's neighbor list
@@ -141,7 +132,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Adds a vertex to the graph.
      *
-     * <p>The new vertex begins with no incident edges, so it receives an empty
+     * The new vertex begins with no incident edges, so it receives an empty
      * neighbor list in the adjacency map.
      *
      * @param vertex the vertex to add
@@ -163,14 +154,12 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Removes a vertex from the graph.
      *
-     * <p>Removing a vertex also removes every edge incident to that vertex.
-     * That means:
-     * <ol>
-     *     <li>remove the vertex from the vertex set</li>
-     *     <li>remove all matching edges from the edge set</li>
-     *     <li>remove the vertex from every neighbor list in the adjacency map</li>
-     *     <li>remove the vertex's own adjacency-list entry</li>
-     * </ol>
+     * Removing a vertex also removes every edge incident to that vertex.
+     * That means we gotta:
+     *     remove the vertex from the vertex set
+     *     remove all matching edges from the edge set
+     *     remove the vertex from every neighbor list in the adjacency map
+     *     remove the vertex's own adjacency-list entry
      *
      * @param vertex the vertex to remove
      * @throws IllegalArgumentException if the vertex is null or not in the graph
@@ -204,11 +193,11 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Adds an undirected edge to the graph.
      *
-     * <p>If either endpoint vertex does not already exist in the graph,
+     * If either endpoint vertex does not already exist in the graph,
      * it is added automatically. This matches the project note that the
      * edge should be added "including its endpoints."
      *
-     * <p>Because the graph is undirected, the edge is stored once in the
+     * Because the graph is undirected, the edge is stored once in the
      * edge set but represented twice in the adjacency list.
      *
      * @param edge the edge to add
@@ -241,7 +230,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Removes an edge from the graph.
      *
-     * <p>Because the graph is undirected, the edge must be removed from both
+     * Because the graph is undirected, the edge must be removed from both
      * endpoint neighbor lists as well as from the graph's edge set.
      *
      * @param edge the edge to remove
@@ -305,7 +294,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Adds one neighbor entry to the adjacency list.
      *
-     * <p>This method only inserts one direction. For undirected behavior,
+     * This method only inserts one direction. For undirected behavior,
      * callers must invoke it for both endpoint directions.
      *
      * @param from the source vertex whose neighbor list will be updated
@@ -319,7 +308,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     /**
      * Removes a single neighbor entry from the adjacency list.
      *
-     * <p>This removes the {@code to} vertex from the {@code from} vertex's
+     * This removes the to vertex from the from vertex's
      * neighbor list, regardless of the stored edge weight.
      *
      * @param from the vertex whose neighbor list should be edited
