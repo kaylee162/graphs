@@ -1,4 +1,5 @@
 package refactor;
+// alright divas its time to find and union our way to an A :)
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,8 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <p>
- * See the PDF for more information on Disjoint Sets.
  * <p>
  * @author Kaylee Henry
  * @version 1.0
@@ -31,6 +30,7 @@ import java.util.Set;
  * 
  * ------------------------------------------------
  * 
+ * High level overview:
  * Class to store a DisjointSet data structure. This data structure has two
  * main functions: find and union. find will look for the root (parent) of a
  * DisjointSet. Calling find on two different T data will check if those two are
