@@ -44,12 +44,14 @@ import java.util.Set;
  * This class implements the core graph algorithms that are used throughout the project.
  *
  * Our super swag toolkit:
- * - BFS: shortest path in unweighted graphs (level-by-level exploration, breath-first search)
- * - DFS: full exploration (deep-first search)
+ * - BFS: level-by-level traversal; it can support shortest-path discovery in
+ *   unweighted graphs when combined with additional bookkeeping
+ * - DFS: depth-first traversal of the vertices reachable from the start vertex
  * - Dijkstra (aka D): shortest paths with weights
  * - Prim + Kruskal: build minimum spanning trees
  *
- * Each method is kinda just the textbook algorithms, but they all still respect the adjacency list order
+ * BFS and DFS visit neighbors in adjacency-list order, while D's,
+ * Prim's, and Kruskal's use priority-based greedy choices.
  */
 public class GraphAlgorithms {
 
@@ -57,9 +59,15 @@ public class GraphAlgorithms {
      * Breadth-First Search (BFS) aka BFFs :)
      *
      * Explores the graph outward in "layers" from the start node.
-     * All nodes at distance 1 are visited before distance 2, etc.
-     * the runtime is O(V + E) because we visit each vertex and edge at most once, 
-     * and the queue operations are O(1) :)
+     *  * Vertices one edge away from the start are explored before vertices
+     * two edges away, and so on.
+     * The runtime is O(V + E) because each vertex is visited once,
+     * and each edge is examined at most once.
+     *
+     * @param <T> the data type stored in the vertices
+     * @param start the starting vertex for the traversal
+     * @param graph the graph to traverse
+     * @return a list of vertices in the order they are visited
      */
     public static <T> List<Vertex<T>> bfs(Vertex<T> start, StaticGraph<T> graph) {
         validateStartAndGraph(start, graph);
@@ -91,12 +99,17 @@ public class GraphAlgorithms {
     }
 
     /**
-     * Depth-First Search (DFS)
+     * Depth-First Search (DFS).
      *
-     * Goes as deep as possible (like Dale with those ponds) before backtracking.
-     * This implementation is recursive 
-     * the runtime is O(V + E) because we visit each vertex and edge at 
-     * most once, and the recursive calls are bounded by the number of vertices.
+     * Goes as deep as possible before backtracking.
+     * This implementation is recursive.
+     * The runtime is O(V + E) because each vertex is visited once,
+     * and each edge is examined at most once.
+     *
+     * @param <T> the data type stored in the vertices
+     * @param start the starting vertex for the traversal
+     * @param graph the graph to traverse
+     * @return a list of vertices in the order they are visited
      */
     public static <T> List<Vertex<T>> dfs(Vertex<T> start, StaticGraph<T> graph) {
         // first we gotta validate it
@@ -114,8 +127,15 @@ public class GraphAlgorithms {
     /**
      * Recursive DFS helper.
      *
-     * This is where the actual "detph-first" behavior happens
-     * Each call dives deeper into the graph until it can't go further :P
+     * This is where the actual depth-first behavior happens.
+     * Each call visits one vertex, records it, and recursively explores
+     * each unvisited neighbor in adjacency-list order.
+     *
+     * @param <T> the data type stored in the vertices
+     * @param curr the current vertex being explored
+     * @param g the graph being traversed
+     * @param vSet the set of already visited vertices
+     * @param list the traversal order being built
      */
     private static <T> void dfs(Vertex<T> curr, StaticGraph<T> g,
                                 Set<Vertex<T>> vSet, List<Vertex<T>> list) {
@@ -137,9 +157,16 @@ public class GraphAlgorithms {
 
     /**
      * D's Algorithm
+     * 
+     * Computes the shortest-path distances from the start vertex
+     * to every reachable vertex in the graph, leaving unreachable
+     * vertices at Integer.MAX_VALUE.
+     * Assumes all edge weights are non-negative.
      *
-     * Computes shortest paths from a single source to all other vertices.
-     * Works only with non-negative edge weights
+     * @param <T> the data type stored in the vertices
+     * @param start the starting vertex
+     * @param graph the graph on which to run Dijkstra's algorithm
+     * @return a map from each vertex to its shortest distance from start
      */
     public static <T> Map<Vertex<T>, Integer> dijkstras(Vertex<T> start,
                                                         StaticGraph<T> graph) {
@@ -152,7 +179,7 @@ public class GraphAlgorithms {
         for (Vertex<T> vertex : graph.getVertices()) {
             distances.put(vertex, Integer.MAX_VALUE); // represents "infinity" (aka unreachable)
         }
-        distances.put(start, 0); // then we start is distance 0
+        distances.put(start, 0); // the start vertex is distance 0 from itself
 
         // Min-heap ordered by smallest distance bc we always want to explore the closest vertex next
         PriorityQueue<VertexDistance<T>> pq = new PriorityQueue<>();
@@ -174,7 +201,8 @@ public class GraphAlgorithms {
                 Vertex<T> next = neighbor.vertex();
                 int newDistance = currentDistance + neighbor.distance();
 
-                // we found a better path to next vertex so update the distance and add to the priority queue for future exploration
+                // we found a better path to next vertex so update the distance and add to the 
+                // priority queue for future exploration
                 if (newDistance < distances.get(next)) {
                     distances.put(next, newDistance);
                     pq.add(new VertexDistance<>(next, newDistance)); // add the updated distance 
@@ -186,10 +214,17 @@ public class GraphAlgorithms {
     }
 
     /**
-     * Prim's Algorithm (MST)
+     * Prim's algorithm for constructing a minimum spanning tree
+     * of a connected graph.
      *
-     * Grows a tree by always picking the cheapest edge that connects
-     * a visited node to an unvisited node 
+     * Grows an MST by repeatedly choosing the cheapest edge
+     * that connects a visited vertex to an unvisited vertex.
+     *
+     * @param <T> the data type stored in the vertices
+     * @param start the starting vertex for Prim's algorithm
+     * @param graph the graph on which to build the MST
+     * @return the minimum spanning tree as a set of edges, or null if the graph
+     *         is disconnected
      */
     public static <T> Set<Edge<T>> prims(Vertex<T> start, StaticGraph<T> graph) {
         validateStartAndGraph(start, graph);
@@ -236,8 +271,14 @@ public class GraphAlgorithms {
     /**
      * Helper for Prim's algorithm.
      *
-     * Adds all edges leaving a vertex into the priority queue,
-     * but only if they go to unvisited nodes.
+     * Adds all edges leaving a given vertex to the priority queue,
+     * but only if they connect to unvisited vertices.
+     *
+     * @param <T> the data type stored in the vertices
+     * @param vertex the vertex whose outgoing edges are being considered
+     * @param graph the graph containing the adjacency information
+     * @param visited the set of vertices already included in the MST
+     * @param pq the priority queue of candidate edges
      */
     private static <T> void addOutgoingEdges(Vertex<T> vertex, StaticGraph<T> graph,
                                              Set<Vertex<T>> visited,
@@ -255,18 +296,24 @@ public class GraphAlgorithms {
     }
 
     /**
-     * Kruskal's Algorithm (MST)
+     * Kruskal's algorithm for a minimum spanning tree.
      *
-     * Sorts all edges and greedily picks the smallest ones that
-     * don't form a cycle
+     * Processes edges in increasing weight order and greedily adds
+     * an edge when it does not create a cycle.
+     *
+     * @param <T> the data type stored in the vertices
+     * @param graph the graph on which to build the MST
+     * @return the minimum spanning tree as a set of edges, or null if the graph
+     *         is disconnected
      */
     public static <T> Set<Edge<T>> kruskals(StaticGraph<T> graph) {
         if (graph == null) {
             throw new IllegalArgumentException("Graph cannot be null.");
         }
 
-        // Kruskal's algorithm relies on a Disjoint Set to efficiently track
-        // which vertices are already connected (in the same component) to avoid cycles when adding edges
+        // Kruskal's algorithm uses a Disjoint Set to track which vertices
+        // belong to the same connected component in the growing forest,
+        // so edges that would create cycles can be skipped.
         Set<Edge<T>> mst = new LinkedHashSet<>();
         PriorityQueue<Edge<T>> pq = new PriorityQueue<>(graph.getEdges());
         DisjointSet<Vertex<T>> disjointSet = new DisjointSet<>();
@@ -302,7 +349,12 @@ public class GraphAlgorithms {
     /**
      * Shared validation helper.
      *
-     * Keeps checks consistent across BFS, DFS, D, and Prim's since they all require a start vertex and graph
+     * Validates that the start vertex and graph are non-null and that
+     * the start vertex exists in the graph.
+     * 
+     * @param <T> the data type stored in the vertices
+     * @param start the starting vertex to validate
+     * @param graph the graph to validate against
      */
     private static <T> void validateStartAndGraph(Vertex<T> start,
                                                   StaticGraph<T> graph) {

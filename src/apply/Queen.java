@@ -235,7 +235,8 @@ public class Queen implements StaticWaddleWorks {
                 return distanceByRoadCount.get(current);
             }
 
-            // now we check all the neighbors of the current intersection and add them to the queue if we haven't visited them before
+            // now we check all the neighbors of the current intersection and add them to the queue 
+            // if we haven't visited them before
             for (VertexDistance<Intersection> neighbor : roads.getNeighbors(current)) {
                 Vertex<Intersection> next = neighbor.vertex();
 
@@ -326,7 +327,8 @@ public class Queen implements StaticWaddleWorks {
                     + (avoid.contains(next.data().type()) ? 1 : 0);
                 int nextDuration = state.totalDuration() + neighbor.distance();
 
-                // This path is better if it has fewer bad intersections, or the same number of bad intersections but less total duration.
+                // This path is better if it has fewer bad intersections, or the same number 
+                // of bad intersections but less total duration.
                 boolean betterBad = nextBadCount < badCount.get(next);
                 boolean sameBadBetterTime = nextBadCount == badCount.get(next)
                     && nextDuration < duration.get(next);
