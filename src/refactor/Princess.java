@@ -1,4 +1,5 @@
 package refactor;
+// she is a princess and she don't need no prince
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +30,8 @@ import java.util.Set;
  * 
  * ------------------------------------------------
  * 
- * Concrete mutable graph implementation backed by an adjacency list.
+ * High level overview:
+ * This is a concrete mutable graph implementation that is backed by an adjacency list.
  *
  * This graph is:
  *     Simple: meaning it has no self-loops, and at most one edge between a pair of vertices
@@ -41,7 +43,7 @@ import java.util.Set;
  *
  * @param <T> the data type stored inside each vertex
  */
-public class AdjacencyListGraph<T> extends MutableGraph<T> {
+public class Princess<T> extends MutableGraph<T> {
 
     /**
      * Adjacency-list representation of the graph.
@@ -67,6 +69,8 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      * After validation, the constructor builds the adjacency list so that
      * every vertex is present as a key and every undirected edge is inserted
      * into both endpoint neighbor lists.
+     * runtime of this constructor is O(V + E), since we have to iterate through both sets once
+     * to validate and build the adj list
      *
      * @param vertices the initial set of vertices
      * @param edges the initial set of edges
@@ -74,25 +78,26 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      * vertices/edges, contain self-loops, or if an edge references a vertex
      * not contained in the vertex set
      */
-    public AdjacencyListGraph(Set<Vertex<T>> vertices, Set<Edge<T>> edges) {
+    public Princess(Set<Vertex<T>> vertices, Set<Edge<T>> edges) {
         super(vertices, edges);
 
-        adjList = new HashMap<>();
+        // use a hash map for O(1) vertex lookups when we build the adj list and later when we query it in getNeighbors
+        adjList = new HashMap<>(); 
 
-        // First, validate and create empty neighbor lists for every vertex.
+        // first, validate and create empty neighbor lists for every vertex
         for (Vertex<T> vertex : this.vertices) {
             if (vertex == null) {
                 throw new IllegalArgumentException("Vertex set cannot contain null");
             }
-            adjList.put(vertex, new ArrayList<>());
+            adjList.put(vertex, new ArrayList<>()); // put it in the adj list 
         }
 
-        // Next, validate every edge and insert it into the undirected adjacency list.
+        // next, validate every edge and insert it into the undirected adjacency list 
         for (Edge<T> edge : this.edges) {
             validateEdgeForConstructor(edge);
 
-            // Because the graph is undirected, each edge must appear twice:
-            // once from u to v and once from v to u.
+            // bc the graph is undirected, each edge must appear twice
+            // once from u to v and once from v to u
             addNeighbor(edge.u(), edge.v(), edge.weight());
             addNeighbor(edge.v(), edge.u(), edge.weight());
         }
@@ -102,7 +107,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      * Returns the adjacency list of the graph.
      *
      * This is an O(1) operation because we simply return an unmodifiable
-     * view of the backing map.
+     * view of the backing map :)
      *
      * @return an unmodifiable view of the adjacency list
      */
@@ -112,9 +117,10 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     }
 
     /**
-     * Returns the neighbors of a given vertex.
+     * Returns the neighbors of a given vertex 
      *
-     * This is an O(1) lookup in the adjacency map.
+     * This is an O(1) lookup in the adjacency map bc we can directly access the 
+     * vertex's neighbor list without iterating through the graph :)
      *
      * @param vertex the vertex whose neighbors should be returned
      * @return an unmodifiable view of that vertex's neighbor list
@@ -123,7 +129,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
     @Override
     public List<VertexDistance<T>> getNeighbors(Vertex<T> vertex) {
         if (vertex == null || !vertices.contains(vertex)) {
-            throw new IllegalArgumentException("Vertex must be non-null and exist in the graph");
+            throw new IllegalArgumentException("Vertex must be non-null and exist in the graph");  
         }
 
         return Collections.unmodifiableList(adjList.get(vertex));
@@ -140,6 +146,8 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      */
     @Override
     public void addVertex(Vertex<T> vertex) {
+        // lowgurtgenuienly it cant be null or already exist in the graph bc that would be bad and 
+        // we dont want bad things in our graph
         if (vertex == null) {
             throw new IllegalArgumentException("Vertex cannot be null");
         }
@@ -166,6 +174,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      */
     @Override
     public void removeVertex(Vertex<T> vertex) {
+        // cant remove null things or things that dont exist
         if (vertex == null) {
             throw new IllegalArgumentException("Vertex cannot be null");
         }
@@ -179,7 +188,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
         // Remove the vertex from every other vertex's neighbor list.
         for (Vertex<T> other : vertices) {
             if (!other.equals(vertex)) {
-                removeNeighbor(other, vertex);
+                removeNeighbor(other, vertex); // 
             }
         }
 
@@ -194,9 +203,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      * Adds an undirected edge to the graph.
      *
      * If either endpoint vertex does not already exist in the graph,
-     * it is added automatically. This matches the project note that the
-     * edge should be added "including its endpoints."
-     *
+     * it is added automatically.     *
      * Because the graph is undirected, the edge is stored once in the
      * edge set but represented twice in the adjacency list.
      *
@@ -206,8 +213,9 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      */
     @Override
     public void addEdge(Edge<T> edge) {
-        validateEdgeForMutation(edge);
+        validateEdgeForMutation(edge); // validate the edge first
 
+        // then check if it already exists in the graph, bc we dont want duplicates
         if (edges.contains(edge)) {
             throw new IllegalArgumentException("Edge already exists in the graph");
         }
@@ -220,9 +228,10 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
             addVertex(edge.v());
         }
 
+        // finally add the edge to the edge set and the adjacency list
         edges.add(edge);
 
-        // Add both directions because this is an undirected graph.
+        // And add both directions because this is an undirected graph.
         addNeighbor(edge.u(), edge.v(), edge.weight());
         addNeighbor(edge.v(), edge.u(), edge.weight());
     }
@@ -238,6 +247,7 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      */
     @Override
     public void removeEdge(Edge<T> edge) {
+        // cant remove null things or things that dont exist 
         if (edge == null) {
             throw new IllegalArgumentException("Edge cannot be null");
         }
@@ -245,7 +255,9 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
             throw new IllegalArgumentException("Edge does not exist in the graph");
         }
 
+        // remove the edge from the edge set
         edges.remove(edge);
+        // remove both directions from the adjacency list because this is an undirected graph.
         removeNeighbor(edge.u(), edge.v());
         removeNeighbor(edge.v(), edge.u());
     }
@@ -258,6 +270,8 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      * references a vertex not in the graph, or is a self-loop
      */
     private void validateEdgeForConstructor(Edge<T> edge) {
+        // we have to check for all of these things in the constructor because if any of them were true, 
+        // the graph would be in an invalid state and that would be bad
         if (edge == null) {
             throw new IllegalArgumentException("Edge set cannot contain null");
         }
@@ -280,6 +294,8 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
      * or is a self-loop
      */
     private void validateEdgeForMutation(Edge<T> edge) {
+        // we have to check for all of these things in mutation operations because if any of them were true, 
+        // the graph would be in an invalid state and that would be bad
         if (edge == null) {
             throw new IllegalArgumentException("Edge cannot be null");
         }
@@ -319,3 +335,5 @@ public class AdjacencyListGraph<T> extends MutableGraph<T> {
         neighbors.removeIf(vertexDistance -> vertexDistance.vertex().equals(to));
     }
 }
+// periodddddd
+// and thats the way it is
